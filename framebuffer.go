@@ -68,7 +68,7 @@ func (fb *Framebuffer) Close() {
 }
 
 // WritePixel changes pixel at x, y to specified color.
-func (fb *Framebuffer) WritePixel(x, y int, red, green, blue, alpha  uint8) {
+func (fb *Framebuffer) WritePixel(x, y int, red, green, blue, alpha uint8) {
 	offset := (int(fb.Vinfo.Xoffset)+x)*(int(fb.Vinfo.Bits_per_pixel)/8) + (int(fb.Vinfo.Yoffset)+y)*int(fb.Finfo.Line_length)
 	fb.Data[offset] = blue
 	fb.Data[offset+1] = green
@@ -84,6 +84,16 @@ func (fb *Framebuffer) Clear(red, green, blue, alpha uint8) {
 			fb.WritePixel(i, j, red, green, blue, alpha)
 		}
 	}
+}
+
+// Bpp returns bytes per pixel for a framebuffer.
+func (fb *Framebuffer) Bpp() (bpp int) {
+	return int(fb.Vinfo.Bits_per_pixel) / 8
+}
+
+// Stride returns line length of a framebuffer.
+func (fb *Framebuffer) Stride() (stride int) {
+	return int(fb.Finfo.Line_length) / fb.Bpp()
 }
 
 // Size returns dimensions of a framebuffer.
