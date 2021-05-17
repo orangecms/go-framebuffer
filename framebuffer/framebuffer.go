@@ -6,6 +6,7 @@
 package framebuffer
 
 import (
+	"fmt"
 	"os"
 	"syscall"
 	"unsafe"
@@ -27,11 +28,13 @@ func Init(dev string) (*Framebuffer, error) {
 		err error
 	)
 
+	fmt.Fprintf(os.Stdout, "fb: open %v", dev)
 	fb.dev, err = os.OpenFile(dev, os.O_RDWR, os.ModeDevice)
 	if err != nil {
 		return nil, err
 	}
 
+	fmt.Fprintf(os.Stdout, "fb: getVariableScreenInfo")
 	// 3.
 	err = ioctl(fb.dev.Fd(), getVariableScreenInfo, unsafe.Pointer(&fb.Vinfo))
 	if err != nil {
@@ -39,6 +42,7 @@ func Init(dev string) (*Framebuffer, error) {
 		return nil, err
 	}
 
+	fmt.Fprintf(os.Stdout, "fb: setVariableScreenInfo")
 	// TODO: set up other stuff
 	fb.Vinfo.Activate = FB_ACTIVATE_NOW
 	// 5. set
@@ -48,6 +52,7 @@ func Init(dev string) (*Framebuffer, error) {
 		return nil, err
 	}
 
+	fmt.Fprintf(os.Stdout, "fb: getFixedScreenInfo")
 	// 6.
 	err = ioctl(fb.dev.Fd(), getFixedScreenInfo, unsafe.Pointer(&fb.Finfo))
 	if err != nil {
@@ -55,6 +60,7 @@ func Init(dev string) (*Framebuffer, error) {
 		return nil, err
 	}
 
+	fmt.Fprintf(os.Stdout, "fb: mmap")
 	// 7.
 	fb.Data, err = syscall.Mmap(
 		int(fb.dev.Fd()),
