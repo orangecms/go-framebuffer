@@ -29,7 +29,7 @@ func Init(dev string) (*Framebuffer, error) {
 	)
 
 	fmt.Fprintf(os.Stdout, "fb: open %v", dev)
-	fb.dev, err = os.OpenFile(dev, os.O_RDWR, os.ModeDevice)
+	fb.dev, err = os.OpenFile(dev, os.O_RDWR, 0)
 	if err != nil {
 		return nil, err
 	}
