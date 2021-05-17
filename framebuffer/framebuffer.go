@@ -32,19 +32,40 @@ func Init(dev string) (*Framebuffer, error) {
 		return nil, err
 	}
 
-	err = ioctl(fb.dev.Fd(), getFixedScreenInfo, unsafe.Pointer(&fb.Finfo))
-	if err != nil {
-		fb.dev.Close()
-		return nil, err
-	}
-
+	// 3.
 	err = ioctl(fb.dev.Fd(), getVariableScreenInfo, unsafe.Pointer(&fb.Vinfo))
 	if err != nil {
 		fb.dev.Close()
 		return nil, err
 	}
 
-	fb.Data, err = syscall.Mmap(int(fb.dev.Fd()), 0, int(fb.Finfo.Smem_len+uint32(fb.Finfo.Smem_start&uint64(syscall.Getpagesize()-1))), protocolRead|protocolWrite, mapShared)
+	// TODO: set up other stuff
+	fb.Vinfo.Activate = FB_ACTIVATE_NOW
+	// 5. set
+	err = ioctl(fb.dev.Fd(), setVariableScreenInfo, unsafe.Pointer(&fb.Vinfo))
+	if err != nil {
+		fb.dev.Close()
+		return nil, err
+	}
+
+	// 6.
+	err = ioctl(fb.dev.Fd(), getFixedScreenInfo, unsafe.Pointer(&fb.Finfo))
+	if err != nil {
+		fb.dev.Close()
+		return nil, err
+	}
+
+	// 7.
+	fb.Data, err = syscall.Mmap(
+		int(fb.dev.Fd()),
+		0,
+		int(
+			fb.Finfo.Smem_len+
+				uint32(fb.Finfo.Smem_start&uint64(syscall.Getpagesize()-1)),
+		),
+		protocolRead|protocolWrite,
+		mapShared,
+	)
 	if err != nil {
 		fb.dev.Close()
 		return nil, err

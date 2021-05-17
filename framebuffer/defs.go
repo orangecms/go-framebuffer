@@ -60,9 +60,16 @@ type bitField struct {
 	Right  uint32
 }
 
+// include/uapi/linux/fb.h
 const (
-	getFixedScreenInfo    uintptr = 0x4602
 	getVariableScreenInfo uintptr = 0x4600
+	setVariableScreenInfo uintptr = 0x4601
+	getFixedScreenInfo    uintptr = 0x4602
+)
+
+const (
+	// Linux include/uapi/linux/fb.h: #define FB_ACTIVATE_NOW  0
+	FB_ACTIVATE_NOW uint32 = 0x0
 )
 
 const (
